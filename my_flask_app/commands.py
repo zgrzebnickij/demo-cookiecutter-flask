@@ -16,7 +16,8 @@ def test():
     """Run the tests."""
     import pytest
 
-    rv = pytest.main([TEST_PATH, "--verbose"])
+    rv = pytest.main([TEST_PATH, "--verbose", '--cov=my_flask_app'])
+    # pytest.main([TEST_PATH, '--cov=my_flask_app'])
     exit(rv)
 
 
