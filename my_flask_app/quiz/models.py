@@ -12,17 +12,17 @@ class Quiz(PkModel):
     """A single quiz"""
 
     __tablename__ = "quizzes"
-    questions = Column(db.JSON(), unique=True, nullable=False)
+    questions = Column(db.String(), unique=True, nullable=False)
     score = Column(db.Integer(), nullable=False)
     created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
-    user_id = reference_col("users", nullable=True)
+    user_id = reference_col("users", nullable=False)
     user = relationship("User", backref="quizzes")
 
     def __init__(self, questions, user_id, **kwargs):
         """Create instance."""
         self.validate_questions(questions)
         score = self.calculate_score(questions)
-        super().__init__(questions=questions, score=score, **kwargs)
+        super().__init__(questions=json.dumps(questions), score=score, user_id=user_id, **kwargs)
 
     @property
     def json_question(self):
@@ -31,7 +31,7 @@ class Quiz(PkModel):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return f"<Quiz(id={self.id!r}, score={self.score!r}, user_is={self.user_id!r})>"
+        return f"<Quiz(id={self.id!r}, score={self.score!r}, user_id={self.user_id!r})>"
 
     @staticmethod
     def validate_questions(questions):

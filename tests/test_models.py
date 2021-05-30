@@ -99,7 +99,7 @@ class TestSingleQuiz:
 
     def test_get_by_id(self):
         """Get test by ID."""
-        quiz = Quiz(self.questions, 0.5)
+        quiz = Quiz(self.questions, 6)
         quiz.save()
 
         retrieved = Quiz.get_by_id(quiz.id)
@@ -107,13 +107,13 @@ class TestSingleQuiz:
 
     def test_created_at_defaults_to_datetime(self):
         """Test creation date."""
-        quiz = Quiz(self.questions, 0.5)
+        quiz = Quiz(self.questions, 5)
         quiz.save()
         assert bool(quiz.created_at)
         assert isinstance(quiz.created_at, dt.datetime)
 
     def test_correct_question(self):
-        quiz = Quiz(self.questions, 0.5)
+        quiz = Quiz(self.questions, 4)
         quiz.save()
 
         retrieved = Quiz.get_by_id(quiz.id)
@@ -123,9 +123,14 @@ class TestSingleQuiz:
     def test_validate_question_structure(self):
         question = {'testquiz': 'answer'}
         with pytest.raises(ValidationError):
-            Quiz(question, 0.5)
+            Quiz(question, 3)
 
     def test_calculation_of_score(self):
         quiz = Quiz(self.questions, 2)
         quiz.save()
         assert quiz.score == 5
+
+    def test_correct_user_id(self):
+        quiz = Quiz(self.questions, 7)
+        quiz.save()
+        assert quiz.user_id == 7

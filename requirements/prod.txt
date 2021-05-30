@@ -41,3 +41,6 @@ environs==9.3.2
 
 # Validation
 jsonschema
+
+# External API
+requests

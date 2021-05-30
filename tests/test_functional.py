@@ -3,9 +3,12 @@
 
 See: http://webtest.readthedocs.org/
 """
+from unittest import TestCase
 from flask import url_for
-
+from flask_login import current_user, login_required, login_user, logout_user
 from my_flask_app.user.models import User
+from webtest.app import AppError
+from random import choice
 
 from .factories import UserFactory
 
@@ -118,3 +121,54 @@ class TestRegistering:
         res = form.submit()
         # sees error
         assert "Username already registered" in res
+
+class TestQuiz:
+    """Register a user."""
+
+    def test_get_quiz_not_logged(self, user, testapp):
+        """Register a new quiz"""
+        try:
+            res = testapp.get("/quiz/")
+            assert False, 'App should return 401 UNAUTHORIZED' 
+        except AppError as err:
+            print(dir(err))
+            assert '401 UNAUTHORIZED' in str(err), 'fApp should return 401 UNAUTHORIZED, but got {err}' 
+
+    def test_save_Quiz(self, user, testapp):
+        """Register a new quiz"""
+        # (the test case is within a test request context)
+        res = testapp.get("/")
+        # Fills out login form in navbar
+        form = res.forms["loginForm"]
+        form["username"] = user.username
+        form["password"] = "myprecious"
+        # Submits
+        res = form.submit().follow()
+        
+        res = testapp.get("/quiz/")
+        # Fills out the form
+        form = res.forms["quizForm"]
+        for index in range(1,6):
+            print(form['answer_1'].options)
+            form[f"answer_{index}"] = choice(form[f'answer_{index}'].options)[0]
+        # Submits
+        res = form.submit().follow()
+        assert res.status_code == 200
+
+    def test_get_quiz(self, user, testapp, fake_question_for_user):
+        """Register a new quiz"""
+        # (the test case is within a test request context)
+        res = testapp.get("/")
+        # Fills out login form in navbar
+        form = res.forms["loginForm"]
+        form["username"] = user.username
+        form["password"] = "myprecious"
+        # Submits
+        res = form.submit().follow()
+        print(fake_question_for_user)
+        res = testapp.get(f"/quiz/id={fake_question_for_user.id}")
+        assert res.status_code == 200
+
+
+        
+        

@@ -9,7 +9,7 @@ from webtest import TestApp
 from my_flask_app.app import create_app
 from my_flask_app.database import db as _db
 
-from .factories import UserFactory
+from .factories import UserFactory, QuizFactory
 
 
 @pytest.fixture
@@ -51,3 +51,33 @@ def user(db):
     user = UserFactory(password="myprecious")
     db.session.commit()
     return user
+
+@pytest.fixture
+def guestions_fake():
+    questions = {
+        "response_code":0,
+        "results":[
+            {
+                "category":"Category 1",
+                "type":"multiple",
+                "difficulty":"medium",
+                "question": f"question {n}",
+                "correct_answer":"answer 1",
+                "incorrect_answers":[
+                    "answer 2",
+                    "answer 3",
+                    "answer 4"
+                ],
+                "answer": "answer 1"
+            } for n in range(5)
+        ]
+    }
+    return questions
+
+@pytest.fixture
+def fake_question_for_user(db, user):
+    quiz = QuizFactory(user_id=user.id)
+    print(quiz)
+    quiz.save()
+    db.session.commit()
+    return quiz

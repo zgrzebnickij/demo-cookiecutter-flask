@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """Test forms."""
+import json
+
+import pytest
 
 from my_flask_app.public.forms import LoginForm
 from my_flask_app.user.forms import RegisterForm
+from my_flask_app.quiz.forms import QuizForm
 
 
 class TestRegisterForm:
@@ -75,3 +79,43 @@ class TestLoginForm:
         form = LoginForm(username=user.username, password="example")
         assert form.validate() is False
         assert "User not activated" in form.username.errors
+
+class TestQuizForm:
+    """Quiz form."""
+
+    def test_validate(self, user, guestions_fake):
+        """Enter username that is already registered."""
+        form = QuizForm(
+            questions=json.dumps(guestions_fake),
+            answer_1="blabla",
+            answer_2="blabla",
+            answer_3="blabla",
+            answer_4="blabla",
+            answer_5="blabla"
+        )
+        assert form.validate() is True
+
+    def test_validate_false(self, user, guestions_fake):
+        """Enter username that is already registered."""
+        form = QuizForm(
+            questions=json.dumps(guestions_fake),
+            answer_1=1,
+            answer_2="blabla",
+            answer_3="blabla",
+            answer_4=False,
+            answer_5="blabla"
+        )
+        assert form.validate() is False
+
+    def test_validate_missing_field(self, user, guestions_fake):
+        """Enter username that is already registered."""
+        form = QuizForm(
+            questions=json.dumps(guestions_fake),
+            answer_1=1,
+            answer_2="blabla",
+            answer_4=False,
+            answer_5="blabla"
+        )
+        assert form.validate() is False
+
+

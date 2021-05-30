@@ -1,0 +1,29 @@
+
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Welcome {{ current_user.username }}</h1>
+        <h3>This is the members-only page.</h3>
+        <form class="form-inline" id="quizForm" method="POST" action="{{ url_for('quiz.quiz') }}" role="login">
+            {{ form.csrf_token }}
+            <div class="input-group mb-2 mr-sm-2">
+                <!-- {{ form.hidden_tag() }} -->
+                <input type="hidden" id="questions" name="questions" value="{{ questions_json }}">
+                {% for question in questions['results'] %}
+                <div class="form-group-quiz">
+                    <h4>{{question.question|safe}}</h4>
+                    Category: {{question.category|safe}}
+                    <select name="answer_{{loop.index}}" id="answer_{{loop.index}}">
+                        {% for answer in question['answers'] %}
+                            <option value="{{answer}}">{{answer|safe}}</option>
+                        {% endfor %}
+                    </select>
+                    <!-- <input class="form-control mr-sm-1 my-auto" id="answer_{{loop.index}}" name="answer_{{loop.index}}" placeholder="Answer_{{loop.index}}" required="" type="text" value=""> -->
+                </div>
+                {% endfor %}
+            </div>
+            <p><input class="btn btn-primary" type="submit" value="Save quiz"></p>
+          </form>
+    </div>
+{% endblock %}
+
