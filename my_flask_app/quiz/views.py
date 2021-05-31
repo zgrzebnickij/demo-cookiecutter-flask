@@ -49,4 +49,17 @@ def quiz():
 @login_required
 def quiz_with_id(quiz_id):
     current_app.logger.info(f"Get quiz with id={quiz_id}")
-    return "<h1>aaaa</h1>"
+    quiz = Quiz.get_by_id(quiz_id)
+    questions = quiz.json_question
+    for question in questions['results']:
+        question['colors'] =[]
+        for answer in question['answers']:
+            current_app.logger.info((answer, question['answer'], question['correct_answer']))
+            if answer == question['correct_answer'] == question['answer']:
+                question['colors'].append('green')
+            elif answer != question['correct_answer'] and answer == question['answer']:
+                question['colors'].append('red')
+            else:
+                question['colors'].append('yellow')
+        current_app.logger.info(question['colors'])
+    return render_template("quiz/quiz.html", questions=questions, score=quiz.score)

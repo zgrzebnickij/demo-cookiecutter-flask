@@ -4,6 +4,7 @@
     <div class="container">
         <h1>Welcome {{ current_user.username }}</h1>
         <h3>This is the members-only page.</h3>
+        {% if form %}
         <form class="form-inline" id="quizForm" method="POST" action="{{ url_for('quiz.quiz') }}" role="login">
             {{ form.csrf_token }}
             <div class="input-group mb-2 mr-sm-2">
@@ -24,6 +25,21 @@
             </div>
             <p><input class="btn btn-primary" type="submit" value="Save quiz"></p>
           </form>
+        {% else %}
+            {% for question in questions['results'] %}
+            <div class="form-group-quiz">
+                <h4>{{question.question|safe}}</h4>
+                Category: {{question.category|safe}}
+                <div name="answer_{{loop.index}}" id="answer_{{loop.index}}">
+                    {% for answer in question['answers'] %}
+                        <div value="{{answer}}" style="color:{{question.colors[loop.index-1]}}">{{answer|safe}}</div>
+                    {% endfor %}
+                </select>
+                <!-- <input class="form-control mr-sm-1 my-auto" id="answer_{{loop.index}}" name="answer_{{loop.index}}" placeholder="Answer_{{loop.index}}" required="" type="text" value=""> -->
+            </div>
+            {% endfor %}
+            <div>Score: {{score}}</div>
+        {% endif %}
     </div>
 {% endblock %}
 

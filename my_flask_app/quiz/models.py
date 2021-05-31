@@ -27,7 +27,7 @@ class Quiz(PkModel):
     @property
     def json_question(self):
         """Full user name."""
-        return self.questions
+        return json.loads(self.questions)
 
     def __repr__(self):
         """Represent instance as a unique string."""
