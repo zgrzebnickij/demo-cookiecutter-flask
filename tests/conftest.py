@@ -2,10 +2,13 @@
 """Defines fixtures available to all tests."""
 
 import logging
+import json
+import requests
 
 import pytest
 from webtest import TestApp
 
+from my_flask_app.quiz import utils
 from my_flask_app.app import create_app
 from my_flask_app.database import db as _db
 
@@ -81,3 +84,13 @@ def fake_question_for_user(db, user):
     quiz.save()
     db.session.commit()
     return quiz
+
+
+@pytest.fixture
+def mock_response(monkeypatch):
+    """Requests.get() mocked to return {'mock_key':'mock_response'}."""
+
+    def mock_get(*args, **kwargs):
+        return json.load('/tests/external_api_response.json')
+
+    monkeypatch.setattr(utils, "get_questions_from_API", mock_get)

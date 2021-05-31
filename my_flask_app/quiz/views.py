@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """User views."""
 import json
+import requests
 from flask import (
     Blueprint, 
     render_template, 
@@ -8,7 +9,7 @@ from flask import (
     request, 
     redirect,
     url_for,
-
+    abort,
 )
 from requests import models
 from my_flask_app.quiz.utils import get_questions_from_API
@@ -42,7 +43,10 @@ def quiz():
         else:
             flash_errors(form)
     # get question
-    questions = get_questions_from_API()
+    try:
+        questions = get_questions_from_API()
+    except requests.RequestException:
+        abort(503)
     current_app.logger.info(questions)
     questions_json = json.dumps(questions)
     return render_template("quiz/quiz.html", form=form, questions_json=questions_json, questions=questions)
@@ -52,6 +56,9 @@ def quiz():
 def quiz_with_id(quiz_id):
     current_app.logger.info(f"Get quiz with id={quiz_id}")
     quiz = Quiz.get_by_id(quiz_id)
+    current_app.logger.info(quiz)
+    if not quiz:
+        abort(404)
     questions = quiz.json_question
     for question in questions['results']:
         question['colors'] =[]

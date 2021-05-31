@@ -15,6 +15,10 @@ guestion_schema = {
                         "type": "array",
                         "items": {"type" : "string"}
                     },
+                    "answers" : {
+                        "type": "array",
+                        "items": {"type" : "string"}
+                    },
                     "answer" : {"type" : "string"},
                 },
                 "required": ["type", "question", "correct_answer", "answer"]

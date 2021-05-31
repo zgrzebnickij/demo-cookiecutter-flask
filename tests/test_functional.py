@@ -9,8 +9,12 @@ from flask_login import current_user, login_required, login_user, logout_user
 from my_flask_app.user.models import User
 from webtest.app import AppError
 from random import choice
+from pytest import MonkeyPatch
 
 from .factories import UserFactory
+
+import pytest
+import requests
 
 
 class TestLoggingIn:
@@ -132,9 +136,9 @@ class TestQuiz:
             assert False, 'App should return 401 UNAUTHORIZED' 
         except AppError as err:
             print(dir(err))
-            assert '401 UNAUTHORIZED' in str(err), 'fApp should return 401 UNAUTHORIZED, but got {err}' 
+            assert '401 UNAUTHORIZED' in str(err), f'App should return 401 UNAUTHORIZED, but got {err}' 
 
-    def test_save_Quiz(self, user, testapp):
+    def test_save_Quiz(self, user, testapp, mock_response):
         """Register a new quiz"""
         # (the test case is within a test request context)
         res = testapp.get("/")
@@ -155,6 +159,45 @@ class TestQuiz:
         res = form.submit().follow()
         assert res.status_code == 200
 
+    def test_get_quiz_invalid(self, user, testapp, monkeypatch):
+        """Register a new quiz"""
+        # (the test case is within a test request context)
+        res = testapp.get("/")
+        # Fills out login form in navbar
+        form = res.forms["loginForm"]
+        form["username"] = user.username
+        form["password"] = "myprecious"
+        # Submits
+        def return_error(*args, **kwargs):
+            raise requests.RequestException
+
+        monkeypatch.setattr(requests, "get", return_error)
+        res = form.submit().follow()
+        res = testapp.get("/quiz/", status=503)
+        assert res.status_code == 503
+
+        
+
+    def test_save_quiz_invalid(self, user, testapp):
+        """Register a new quiz"""
+        # (the test case is within a test request context)
+        res = testapp.get("/")
+        # Fills out login form in navbar
+        form = res.forms["loginForm"]
+        form["username"] = user.username
+        form["password"] = "myprecious"
+        # Submits
+        res = form.submit().follow()
+        res = testapp.get("/quiz/")
+        # Fills out the form
+        form = res.forms["quizForm"]
+        with pytest.raises(ValueError):
+            for index in range(1,6):
+                print(form['answer_1'].options)
+                form[f"answer_{index}"] = 'random answer'
+            # Submits
+            res = form.submit().follow()
+
     def test_get_quiz(self, user, testapp, fake_question_for_user):
         """Register a new quiz"""
         # (the test case is within a test request context)
@@ -168,6 +211,19 @@ class TestQuiz:
         print(fake_question_for_user)
         res = testapp.get(f"/quiz/{fake_question_for_user.id}")
         assert res.status_code == 200
+
+    def test_get_quiz_not_existing(self, user, testapp):
+        """Register a new quiz"""
+        # (the test case is within a test request context)
+        res = testapp.get("/")
+        # Fills out login form in navbar
+        form = res.forms["loginForm"]
+        form["username"] = user.username
+        form["password"] = "myprecious"
+        # Submits
+        res = form.submit().follow()
+        res = testapp.get(f"/quiz/300", status=404)
+        assert res.status_code == 404
 
     def test_get_quiz_scores(self, user, testapp, fake_question_for_user):
         """Register a new quiz"""
