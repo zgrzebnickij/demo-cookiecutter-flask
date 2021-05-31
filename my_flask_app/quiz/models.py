@@ -44,4 +44,5 @@ class Quiz(PkModel):
             if question['answer'] == question['correct_answer']:
                 score += 1
         return score
+        
 

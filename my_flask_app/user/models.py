@@ -63,3 +63,9 @@ class User(UserMixin, PkModel):
     def __repr__(self):
         """Represent instance as a unique string."""
         return f"<User({self.username!r})>"
+
+    @classmethod
+    def get_users_with_quizzes(cls):
+        q = db.session.query(cls).join(cls.quizzes).all()
+        # db.session.commit()
+        return q

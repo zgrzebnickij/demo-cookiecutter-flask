@@ -1,0 +1,14 @@
+
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Scoreboard</h1>
+        <div id=scoreboard>
+            {% for position in scoreboard %}
+                <div>{{loop.index}} | {{position['user']}} | {{position['total_score']}}</div>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+

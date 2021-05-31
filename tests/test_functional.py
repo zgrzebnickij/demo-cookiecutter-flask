@@ -166,8 +166,15 @@ class TestQuiz:
         # Submits
         res = form.submit().follow()
         print(fake_question_for_user)
-        res = testapp.get(f"/quiz/id={fake_question_for_user.id}")
+        res = testapp.get(f"/quiz/{fake_question_for_user.id}")
         assert res.status_code == 200
+
+    def test_get_quiz_scores(self, user, testapp, fake_question_for_user):
+        """Register a new quiz"""
+        res = testapp.get(f"/quiz/quizzes")
+        assert res.status_code == 200
+        assert res.html.find(id="scoreboard"), 'No div with id=scoreboard'
+
 
 
         

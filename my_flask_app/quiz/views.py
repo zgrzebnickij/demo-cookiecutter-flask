@@ -10,11 +10,13 @@ from flask import (
     url_for,
 
 )
+from requests import models
 from my_flask_app.quiz.utils import get_questions_from_API
 from flask_login import current_user, login_required
 from my_flask_app.quiz.forms import QuizForm
 from my_flask_app.utils import flash_errors
 from my_flask_app.quiz.models import Quiz
+from my_flask_app.user.models import User
 
 blueprint = Blueprint("quiz", __name__, url_prefix="/quiz", static_folder="../static")
 
@@ -63,3 +65,18 @@ def quiz_with_id(quiz_id):
                 question['colors'].append('yellow')
         current_app.logger.info(question['colors'])
     return render_template("quiz/quiz.html", questions=questions, score=quiz.score)
+
+@blueprint.route("/quizzes", methods=["GET"])
+def quiz_scoreboard():
+    current_app.logger.info(User.get_all())
+    current_app.logger.info(Quiz.get_all())
+    current_app.logger.info(User.get_users_with_quizzes())
+    scoreboard = []
+    for user in User.get_users_with_quizzes():
+        current_app.logger.info(user)
+        total_score = 0
+        for quiz in user.quizzes:
+            current_app.logger.info(quiz)
+            total_score += quiz.score
+        scoreboard.append({"user": user.username, "total_score": total_score/(len(user.quizzes)*5)})
+    return render_template("quiz/quizzes.html", scoreboard=sorted(scoreboard, key=lambda x: x['total_score']))
