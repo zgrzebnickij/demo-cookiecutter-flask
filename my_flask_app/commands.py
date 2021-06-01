@@ -20,6 +20,12 @@ def test():
     # pytest.main([TEST_PATH, '--cov=my_flask_app'])
     exit(rv)
 
+@click.command()
+def behave():
+    """Run behave."""
+    rv = os.system('behave tests/features')
+    exit(rv)
+
 
 @click.command()
 @click.option(
